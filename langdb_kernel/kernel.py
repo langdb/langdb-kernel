@@ -2,6 +2,7 @@ import requests
 import logging
 from ipykernel.kernelbase import Kernel
 import pandas as pd
+import json
 # Set up logging
 logging.basicConfig(level=logging.DEBUG, 
                     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
@@ -47,10 +48,27 @@ class LangDBKernel(Kernel):
             else: 
                 response = requests.post("http://localhost:8080/query", json={'query': code })
                 response.raise_for_status()
-                json_response = response.json()
-                logger.debug(f"POST request successful, response: {json_response}")
+                logger.debug(f"POST request successful")
+                try:
+                    json_response = response.json()
+                except json.JSONDecodeError:
+                    logger.warning("JSON parsing failed, returning raw response")
+                    raw_response = response.text
+                    if not silent:
+                        display_data = {'data': {'text/plain': raw_response}, 'metadata': {}}
+                        self.send_response(self.iopub_socket, 'display_data', display_data)
+                    return {
+                        'status': 'ok',
+                        'execution_count': self.execution_count,
+                        'payload': [],
+                        'user_expressions': {},
+                    }        
+
+                logger.debug(" I SHOUDNOT HERE ")               
                 data = json_response.get("data", [])
                 df = pd.DataFrame(data)
+
+
                 # Check for exception in the response
                 if json_response.get("exception"):
                     raise Exception(json_response["exception"])
@@ -66,16 +84,16 @@ class LangDBKernel(Kernel):
                 'payload': [],
                 'user_expressions': {},
             }
-        
+
         except requests.exceptions.RequestException as e:
             logger.error("Request failed", exc_info=True)
             return {
                 'status': 'error',
-                'execution_count': self.execution_count,
-                'ename': type(e).__name__,
-                'evalue': str(e),
-                'traceback': [],
-            }
+            'execution_count': self.execution_count,
+            'ename': type(e).__name__,
+            'evalue': str(e),
+            'traceback': [],
+        }
         except Exception as e:
             logger.error("An error occurred", exc_info=True)
             return {
