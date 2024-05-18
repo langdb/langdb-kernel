@@ -1,0 +1,35 @@
+[project]
+name = "langdb-kernel"
+dynamic = ["version"]
+description = "Simple example kernel for Jupyter"
+license = { file = "LICENSE" }
+authors = [{ name = "Vivek Gudapuri", email = " vivek@langdb.ai" }]
+readme = "README.md"
+packages = [{ include = "langdb_kernel" }]
+classifiers = [
+  "Intended Audience :: Developers",
+  "License :: OSI Approved :: BSD License",
+  "Programming Language :: Python :: 3",
+]
+requires-python = ">=3.8"
+dependencies = ["ipykernel", "jupyter_client", "pandas"]
+
+
+[project.urls]
+Homepage = "https://github.com/langdb/langdb-kernel"
+
+[tool.hatch.version]
+path = "langdb_kernel/__init__.py"
+
+
+[tool.hatch.build.hooks.custom]
+
+[build-system]
+requires = ["hatchling>=1.10.0", "ipykernel"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.sdist]
+include = ["/langdb_kernel"]
+
+[tool.hatch.build.targets.wheel.shared-data]
+"data_kernelspec/share" = "share"
