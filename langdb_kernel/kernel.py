@@ -16,9 +16,10 @@ class LangDBKernel(Kernel):
     language = 'python'
     language_version = '3.8'
     language_info = {
-        'name': 'python',
-        'mimetype': 'text/x-python',
-        'file_extension': '.py',
+        'name': 'sql',
+        'mimetype': 'text/x-sql',
+        'file_extension': '.sql',
+        'codemirror_mode': 'sql',
     }
     banner = "LangDB - Run LangDB SQL directly in your notebook"
 
