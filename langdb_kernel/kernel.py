@@ -13,8 +13,7 @@ LANGDB_QUERY_URL = "http://localhost:8080/query"
 class LangDBKernel(Kernel):
     implementation = 'LangDBKernel'
     implementation_version = '1.0'
-    language = 'python'
-    language_version = '3.8'
+    language = 'sql'
     language_info = {
         'name': 'sql',
         'mimetype': 'text/x-sql',
@@ -51,9 +50,14 @@ class LangDBKernel(Kernel):
 
         try:
             response = requests.post(LANGDB_QUERY_URL, json={'query': code})
-            response.raise_for_status()
-            logger.debug("POST request successful")
-
+            status = 'ok'
+            if response.status_code >= 200 and response.status_code < 300:
+                logger.debug("POST request successful")
+                status = 'ok'
+            else: 
+                logger.debug("POST request failed with status:", status)
+                status = 'error'
+            
             try:
                 json_response = response.json()
                 logger.debug("JSON response parsed successfully")
@@ -86,7 +90,7 @@ class LangDBKernel(Kernel):
                 self.send_response(self.iopub_socket, 'display_data', display_data)
 
             return {
-                'status': 'ok',
+                'status': status,
                 'execution_count': self.execution_count,
                 'payload': [],
                 'user_expressions': {},
