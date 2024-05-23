@@ -91,7 +91,7 @@ class LangDBKernel(Kernel):
                 
                 iframe_src = f"https://langdb.github.io/langdb-widget?{query}"
                 logger.debug(f"iframe url: {iframe_src}")
-                iframe_html = f'<iframe src="{iframe_src}" width="100%" height="600"></iframe>'
+                iframe_html = f'<iframe src="{iframe_src}" width="100%" height="600" frameborder="0"></iframe>'
                 display_data = {'data': {'text/html': iframe_html}, 'metadata': {}}
                 self.send_response(self.iopub_socket, 'display_data', display_data)
                 return {
