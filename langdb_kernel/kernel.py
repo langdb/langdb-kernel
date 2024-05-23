@@ -74,6 +74,33 @@ class LangDBKernel(Kernel):
                     'user_expressions': {},
                 }
 
+            # If code contains "CHAT" 
+            if "chat" in code.lower():
+                logger.debug(json.dumps(json_response))
+                params = json_response.get('params', {})
+                endpoint = json_response.get('endpoint_name', {})
+                server_url = json_response.get('server_url') or "http://localhost:8080/stream"
+                initial_params = {"server_url": server_url, "endpoint": endpoint}
+                if not endpoint:
+                    raise Exception(f"endpoint not specified.")
+                 # Combine initial_params and params into a single dictionary
+                combined_params = {**initial_params, **params}
+
+                # Create the query string from the combined dictionary
+                query = '&'.join(f'{k}={v}' for k, v in combined_params.items())
+                
+                iframe_src = f"https://langdb.github.io/langdb-widget?{query}"
+                logger.debug(f"iframe url: {iframe_src}")
+                iframe_html = f'<iframe src="{iframe_src}" width="100%" height="600"></iframe>'
+                display_data = {'data': {'text/html': iframe_html}, 'metadata': {}}
+                self.send_response(self.iopub_socket, 'display_data', display_data)
+                return {
+                    'status': 'ok',
+                    'execution_count': self.execution_count,
+                    'payload': [],
+                    'user_expressions': {},
+                }
+            
             # Check for exception in the response
             if json_response.get("exception"):
                 raise Exception(json_response["exception"])
